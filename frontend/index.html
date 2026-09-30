@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3f4ee" />
+    <title>Daymark | Personal Workspace</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="topbar">
+        <a class="wordmark" href="/" aria-label="Daymark home"
+          ><span class="mark">D</span> daymark</a
+        >
+        <span class="topbar-note">A little more focus, every day.</span>
+      </header>
+
+      <div
+        id="notice"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+
+      <section id="authView" class="auth-layout" aria-labelledby="authHeading">
+        <div class="intro-panel">
+          <p class="eyebrow">YOUR DAY, IN VIEW</p>
+          <h1 id="authHeading">Make room<br />for what matters.</h1>
+          <p class="intro-copy">
+            Keep your next steps close, mark the momentum, and leave the mental
+            clutter behind.
+          </p>
+          <div class="rule-art" aria-hidden="true">
+            <span></span><span></span><span></span><b>01</b>
+          </div>
+        </div>
+
+        <div class="auth-panel">
+          <div class="auth-tabs" role="tablist" aria-label="Account options">
+            <button
+              class="auth-tab is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-auth-mode="login"
+            >
+              Sign in
+            </button>
+            <button
+              class="auth-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-auth-mode="register"
+            >
+              Create account
+            </button>
+          </div>
+          <form id="loginForm" class="auth-form">
+            <h2>Welcome back</h2>
+            <p class="form-hint">Pick up where you left off.</p>
+            <label for="loginEmail">Email</label>
+            <input
+              id="loginEmail"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            />
+            <label for="loginPassword">Password</label>
+            <input
+              id="loginPassword"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+            <button class="primary-button full-button" type="submit">
+              Sign in <span aria-hidden="true">&#8594;</span>
+            </button>
+          </form>
+          <form id="registerForm" class="auth-form" hidden>
+            <h2>Start with a clean page</h2>
+            <p class="form-hint">Your task list is private to your account.</p>
+            <label for="registerName">Name</label>
+            <input
+              id="registerName"
+              name="name"
+              type="text"
+              autocomplete="name"
+              maxlength="100"
+              required
+            />
+            <label for="registerEmail">Email</label>
+            <input
+              id="registerEmail"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            />
+            <label for="registerPassword">Password</label>
+            <input
+              id="registerPassword"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              maxlength="128"
+              aria-describedby="passwordHint"
+              required
+            />
+            <small id="passwordHint"
+              >At least 8 characters, with a letter and a number.</small
+            >
+            <button class="primary-button full-button" type="submit">
+              Create account <span aria-hidden="true">&#8594;</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section id="appView" class="workspace" hidden>
+        <header class="workspace-header">
+          <div>
+            <p class="eyebrow">PERSONAL WORKSPACE</p>
+            <h1 id="welcomeHeading">Your day, in view.</h1>
+          </div>
+          <div class="account-actions">
+            <button
+              id="profilePictureButton"
+              class="profile-picture"
+              type="button"
+              aria-label="Change profile picture"
+              title="Change profile picture"
+            >
+              <span id="profileInitials" aria-hidden="true">D</span>
+              <img id="profilePicture" alt="" hidden />
+            </button>
+            <input
+              id="profilePictureInput"
+              class="sr-only"
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              tabindex="-1"
+            />
+            <span id="userEmail" class="user-email"></span>
+            <button id="logoutButton" class="quiet-button" type="button">
+              Sign out
+            </button>
+          </div>
+        </header>
+
+        <nav
+          id="workspaceNav"
+          class="workspace-nav"
+          aria-label="Personal workspace sections"
+        >
+          <a
+            href="/workspace/overview"
+            class="workspace-tab is-active"
+            data-workspace-view="overview"
+            aria-current="page"
+          >
+            Overview
+          </a>
+          <a
+            href="/workspace/tasks"
+            class="workspace-tab"
+            data-workspace-view="tasks"
+          >
+            Tasks
+          </a>
+          <a
+            href="/workspace/work"
+            class="workspace-tab"
+            data-workspace-view="work"
+          >
+            Work
+          </a>
+          <a
+            href="/workspace/education"
+            class="workspace-tab"
+            data-workspace-view="education"
+          >
+            Education
+          </a>
+          <a
+            href="/workspace/family"
+            class="workspace-tab"
+            data-workspace-view="family"
+          >
+            Family
+          </a>
+          <a
+            href="/workspace/contacts"
+            class="workspace-tab"
+            data-workspace-view="contacts"
+          >
+            Contacts
+          </a>
+          <a
+            href="/workspace/journal"
+            class="workspace-tab"
+            data-workspace-view="journal"
+          >
+            Journal
+          </a>
+          <a
+            href="/workspace/activities"
+            class="workspace-tab"
+            data-workspace-view="activities"
+          >
+            Plans
+          </a>
+          <a
+            href="/workspace/hobbies"
+            class="workspace-tab"
+            data-workspace-view="hobbies"
+          >
+            Hobbies
+          </a>
+          <a
+            href="/workspace/development"
+            class="workspace-tab"
+            data-workspace-view="development"
+          >
+            Growth
+          </a>
+          <a
+            href="/workspace/gallery"
+            class="workspace-tab"
+            data-workspace-view="gallery"
+          >
+            Gallery
+          </a>
+        </nav>
+
+        <section
+          id="overviewPanel"
+          class="overview-panel"
+          data-workspace-panel="overview"
+        >
+          <div class="overview-intro">
+            <div>
+              <p class="eyebrow">YOUR PERSONAL SPACE</p>
+              <h2>A life, thoughtfully gathered.</h2>
+            </div>
+            <p class="privacy-note">Private to your account</p>
+          </div>
+          <div class="overview-stats">
+            <div>
+              <span id="overviewRecordCount">0</span
+              ><small>Personal records</small>
+            </div>
+            <div>
+              <span id="overviewTaskCount">0</span><small>Open tasks</small>
+            </div>
+            <div>
+              <span id="overviewGalleryCount">0</span
+              ><small>Gallery moments</small>
+            </div>
+          </div>
+          <div class="overview-section-heading">
+            <div>
+              <p class="eyebrow">YOUR SECTIONS</p>
+              <h3>Where would you like to go?</h3>
+            </div>
+            <p class="section-heading-note">Choose a space to continue</p>
+          </div>
+          <div class="module-grid">
+            <a
+              class="module-link module-work"
+              href="/workspace/work"
+              data-go-section="work"
+            >
+              <span class="module-mark" aria-hidden="true">01</span>
+              <span class="module-copy"
+                ><strong>Work experience</strong
+                ><small>Career and roles</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-work">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-education"
+              href="/workspace/education"
+              data-go-section="education"
+            >
+              <span class="module-mark" aria-hidden="true">02</span>
+              <span class="module-copy"
+                ><strong>Education</strong
+                ><small>Studies and learning</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-education">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-family"
+              href="/workspace/family"
+              data-go-section="family"
+            >
+              <span class="module-mark" aria-hidden="true">03</span>
+              <span class="module-copy"
+                ><strong>Family</strong><small>People and memories</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-family">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-contacts"
+              href="/workspace/contacts"
+              data-go-section="contacts"
+            >
+              <span class="module-mark" aria-hidden="true">04</span>
+              <span class="module-copy"
+                ><strong>Important contacts</strong
+                ><small>Emergency and family contacts</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-contacts">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-journal"
+              href="/workspace/journal"
+              data-go-section="journal"
+            >
+              <span class="module-mark" aria-hidden="true">05</span>
+              <span class="module-copy"
+                ><strong>Journal &amp; history</strong
+                ><small>Stories and reflections</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-journal">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-activities"
+              href="/workspace/activities"
+              data-go-section="activities"
+            >
+              <span class="module-mark" aria-hidden="true">06</span>
+              <span class="module-copy"
+                ><strong>Future plans</strong
+                ><small>Upcoming activities</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-activities">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-hobbies"
+              href="/workspace/hobbies"
+              data-go-section="hobbies"
+            >
+              <span class="module-mark" aria-hidden="true">07</span>
+              <span class="module-copy"
+                ><strong>Hobbies</strong
+                ><small>Interests and pastimes</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-hobbies">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-development"
+              href="/workspace/development"
+              data-go-section="development"
+            >
+              <span class="module-mark" aria-hidden="true">08</span>
+              <span class="module-copy"
+                ><strong>Personal growth</strong
+                ><small>Goals and progress</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-development">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+            <a
+              class="module-link module-gallery"
+              href="/workspace/gallery"
+              data-go-section="gallery"
+            >
+              <span class="module-mark" aria-hidden="true">09</span>
+              <span class="module-copy"
+                ><strong>Gallery</strong
+                ><small>Private photo moments</small></span
+              >
+              <span class="module-footer"
+                ><small id="count-gallery">0 entries</small
+                ><b aria-hidden="true">&#8594;</b></span
+              >
+            </a>
+          </div>
+        </section>
+
+        <div id="tasksPanel" data-workspace-panel="tasks" hidden>
+          <section class="composer" aria-label="Add a task">
+            <form id="taskForm">
+              <label class="sr-only" for="taskTitle">New task</label>
+              <input
+                id="taskTitle"
+                name="title"
+                type="text"
+                maxlength="200"
+                placeholder="What needs your attention?"
+                required
+              />
+              <label class="sr-only" for="taskDueDate">Due date</label>
+              <input
+                id="taskDueDate"
+                name="due_date"
+                type="date"
+                aria-label="Due date"
+              />
+              <label class="sr-only" for="taskPriority">Priority</label>
+              <select id="taskPriority" name="priority" aria-label="Priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+              <button class="primary-button" type="submit">
+                Add task <span aria-hidden="true">+</span>
+              </button>
+            </form>
+          </section>
+
+          <section class="task-section" aria-labelledby="tasksHeading">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">THE LIST</p>
+                <h2 id="tasksHeading">Your tasks</h2>
+              </div>
+              <button
+                id="refreshButton"
+                class="icon-button"
+                type="button"
+                aria-label="Refresh tasks"
+                title="Refresh tasks"
+              >
+                <span aria-hidden="true">&#8635;</span>
+              </button>
+            </div>
+            <div class="list-toolbar">
+              <div class="filters" role="group" aria-label="Filter tasks">
+                <button
+                  class="filter-button is-active"
+                  type="button"
+                  data-filter="all"
+                  aria-pressed="true"
+                >
+                  All
+                </button>
+                <button
+                  class="filter-button"
+                  type="button"
+                  data-filter="active"
+                  aria-pressed="false"
+                >
+                  To do
+                </button>
+                <button
+                  class="filter-button"
+                  type="button"
+                  data-filter="completed"
+                  aria-pressed="false"
+                >
+                  Done
+                </button>
+              </div>
+              <label class="sr-only" for="priorityFilter"
+                >Filter by priority</label
+              >
+              <select id="priorityFilter" class="toolbar-select">
+                <option value="all">Any priority</option>
+                <option value="high">High priority</option>
+                <option value="medium">Medium priority</option>
+                <option value="low">Low priority</option>
+              </select>
+              <label class="sr-only" for="dueFilter">Filter by due date</label>
+              <select id="dueFilter" class="toolbar-select">
+                <option value="all">Any due date</option>
+                <option value="scheduled">Has due date</option>
+                <option value="no-date">No due date</option>
+                <option value="overdue">Overdue</option>
+              </select>
+              <label class="sr-only" for="sortTasks">Sort tasks</label>
+              <select id="sortTasks" class="toolbar-select sort-select">
+                <option value="created">Original order</option>
+                <option value="due-date">Due date</option>
+                <option value="priority">Priority</option>
+              </select>
+              <p id="taskCount" class="task-count" aria-live="polite"></p>
+            </div>
+            <ul id="taskList" class="task-list"></ul>
+            <div id="emptyState" class="empty-state" hidden>
+              <span class="empty-mark" aria-hidden="true">&#10003;</span>
+              <h3 id="emptyHeading">A clear start.</h3>
+              <p id="emptyCopy">Add a task above and make today your own.</p>
+            </div>
+          </section>
+          <footer class="workspace-footer">
+            <span>DAYMARK</span><span id="footerSummary"></span>
+          </footer>
+        </div>
+
+        <section
+          id="recordsPanel"
+          class="records-panel"
+          data-workspace-panel="records"
+          hidden
+        >
+          <header class="records-heading">
+            <div>
+              <p id="recordsEyebrow" class="eyebrow">PERSONAL RECORDS</p>
+              <h2 id="recordsTitle"></h2>
+              <p id="recordsDescription" class="records-description"></p>
+            </div>
+            <button id="addRecordButton" class="primary-button" type="button">
+              Add record <span aria-hidden="true">+</span>
+            </button>
+          </header>
+          <div id="recordsList" class="records-grid"></div>
+          <div id="recordsEmpty" class="empty-state" hidden>
+            <span class="empty-mark" aria-hidden="true">&#10003;</span>
+            <h3>Start this section.</h3>
+            <p>Your entries are saved privately to your account.</p>
+          </div>
+        </section>
+      </section>
+
+      <dialog id="editDialog" class="edit-dialog" aria-labelledby="editHeading">
+        <form id="editForm">
+          <div class="dialog-heading">
+            <div>
+              <p class="eyebrow">MAKE A CHANGE</p>
+              <h2 id="editHeading">Edit task</h2>
+            </div>
+            <button
+              id="closeDialogButton"
+              class="icon-button"
+              type="button"
+              aria-label="Close"
+            >
+              &#215;
+            </button>
+          </div>
+          <label for="editTitle">Task title</label>
+          <input
+            id="editTitle"
+            name="title"
+            type="text"
+            maxlength="200"
+            required
+          />
+          <label for="editDueDate">Due date</label>
+          <input id="editDueDate" name="due_date" type="date" />
+          <label for="editPriority">Priority</label>
+          <select id="editPriority" name="priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <div class="dialog-actions">
+            <button class="quiet-button" type="button" id="cancelEditButton">
+              Cancel
+            </button>
+            <button class="primary-button" type="submit">Save changes</button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog
+        id="recordDialog"
+        class="edit-dialog record-dialog"
+        aria-labelledby="recordDialogTitle"
+      >
+        <form id="recordForm">
+          <div class="dialog-heading">
+            <div>
+              <p class="eyebrow">PRIVATE WORKSPACE</p>
+              <h2 id="recordDialogTitle">Add record</h2>
+            </div>
+            <button
+              id="closeRecordDialog"
+              class="icon-button"
+              type="button"
+              aria-label="Close"
+            >
+              &#215;
+            </button>
+          </div>
+          <div id="recordFields" class="record-fields"></div>
+          <label for="recordContent" id="recordContentLabel">Notes</label>
+          <textarea
+            id="recordContent"
+            name="content"
+            rows="5"
+            maxlength="20000"
+          ></textarea>
+          <div id="galleryUploadField" hidden>
+            <label for="galleryImage">Photo</label>
+            <input
+              id="galleryImage"
+              name="image"
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+            />
+            <small>JPEG, PNG, GIF, or WebP, up to 5 MB.</small>
+          </div>
+          <div class="dialog-actions">
+            <button class="quiet-button" type="button" id="cancelRecordButton">
+              Cancel
+            </button>
+            <button class="primary-button" type="submit" id="saveRecordButton">
+              Save record
+            </button>
+          </div>
+        </form>
+      </dialog>
+    </main>
+    <script src="/static/script.js" defer></script>
+  </body>
+</html>
