@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Galgalo Godana favicon</title>
+  <desc id="desc">GG initials in a dark green square.</desc>
+  <rect width="64" height="64" rx="14" fill="#17211e"/>
+  <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke="#d4f05e" stroke-width="2"/>
+  <path d="M18 45V19h8.8c6.7 0 11.2 3.8 11.2 9.3 0 5.8-4.5 9.7-11.2 9.7H18Zm7.7-6.2h1.3c3.3 0 5.4-1.9 5.4-4.8 0-2.8-2.1-4.7-5.4-4.7h-1.3v9.5ZM34.7 45V19h7.3v26h-7.3Z" fill="#f2f2eb"/>
+  <path d="M19 20h6.5v25H19z" fill="#d4f05e" opacity="0.9"/>
+</svg>
