@@ -6,7 +6,6 @@
       <circle cx="32" cy="32" r="30" />
     </clipPath>
   </defs>
-  <rect width="64" height="64" rx="18" fill="#17211e" />
   <g clip-path="url(#profileClip)">
     <image
       href="https://github.com/galgalogodana885-star.png?size=256"
@@ -17,5 +16,4 @@
       preserveAspectRatio="xMidYMid slice"
     />
   </g>
-  <circle cx="32" cy="32" r="30" fill="none" stroke="#d4f05e" stroke-width="2" />
 </svg>
