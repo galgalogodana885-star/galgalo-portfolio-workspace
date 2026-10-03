@@ -1,30 +1,21 @@
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker
 
-from models import Base
 from config import settings
-
+from models import Base
 
 DATABASE_URL = settings.database_url
 
 engine = create_engine(DATABASE_URL)
 
-SessionLocal = sessionmaker(
-    bind=engine,
-    autoflush=False,
-    autocommit=False
-)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 Base.metadata.create_all(bind=engine)
 
 
 def migrate_task_metadata():
-    task_columns = {
-        column["name"] for column in inspect(engine).get_columns("tasks")
-    }
-    user_columns = {
-        column["name"] for column in inspect(engine).get_columns("users")
-    }
+    task_columns = {column["name"] for column in inspect(engine).get_columns("tasks")}
+    user_columns = {column["name"] for column in inspect(engine).get_columns("users")}
 
     with engine.begin() as connection:
         if "due_date" not in task_columns:

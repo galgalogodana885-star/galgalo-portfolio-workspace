@@ -10,11 +10,7 @@ def main():
         if user is None:
             raise SystemExit("Create a user before running this database check.")
 
-        task = Task(
-            title="Learn SQLAlchemy",
-            completed=False,
-            user_id=user.id
-        )
+        task = Task(title="Learn SQLAlchemy", completed=False, user_id=user.id)
         db.add(task)
         db.commit()
         print(task.id)

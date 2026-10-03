@@ -17,17 +17,13 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
     profile_picture_data: Mapped[bytes | None] = mapped_column(
-        LargeBinary,
-        nullable=True
+        LargeBinary, nullable=True
     )
     profile_picture_content_type: Mapped[str | None] = mapped_column(
-        String(30),
-        nullable=True
+        String(30), nullable=True
     )
 
-    tasks: Mapped[list["Task"]] = relationship(
-        back_populates="user"
-    )
+    tasks: Mapped[list["Task"]] = relationship(back_populates="user")
 
 
 class Task(Base):
@@ -39,13 +35,9 @@ class Task(Base):
     due_date: Mapped[date | None] = mapped_column(nullable=True)
     priority: Mapped[str] = mapped_column(String(6), default="medium")
 
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id")
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    user: Mapped["User"] = relationship(
-        back_populates="tasks"
-    )
+    user: Mapped["User"] = relationship(back_populates="tasks")
 
 
 class WorkspaceEntry(Base):
@@ -60,6 +52,5 @@ class WorkspaceEntry(Base):
     image_data: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     image_content_type: Mapped[str | None] = mapped_column(String(30), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now()
+        DateTime(timezone=True), server_default=func.now()
     )

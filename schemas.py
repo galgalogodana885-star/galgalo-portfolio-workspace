@@ -3,7 +3,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
-
 TaskPriority = Literal["low", "medium", "high"]
 WorkspaceSection = Literal[
     "work",
@@ -14,15 +13,12 @@ WorkspaceSection = Literal[
     "activities",
     "hobbies",
     "development",
-    "gallery"
+    "gallery",
 ]
 
 
 class TaskCreate(BaseModel):
-    title: str = Field(
-        min_length=1,
-        max_length=200
-    )
+    title: str = Field(min_length=1, max_length=200)
     completed: bool = False
     due_date: date | None = None
     priority: TaskPriority = "medium"
@@ -39,10 +35,7 @@ class TaskCreate(BaseModel):
 
 
 class TaskUpdate(BaseModel):
-    title: str = Field(
-        min_length=1,
-        max_length=200
-    )
+    title: str = Field(min_length=1, max_length=200)
     completed: bool
     due_date: date | None = None
     priority: TaskPriority = "medium"
@@ -59,11 +52,7 @@ class TaskUpdate(BaseModel):
 
 
 class TaskPatch(BaseModel):
-    title: str | None = Field(
-        default=None,
-        min_length=1,
-        max_length=200
-    )
+    title: str | None = Field(default=None, min_length=1, max_length=200)
     completed: bool | None = None
     due_date: date | None = None
     priority: TaskPriority = "medium"
@@ -89,9 +78,7 @@ class TaskResponse(BaseModel):
     due_date: date | None
     priority: TaskPriority
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkspaceEntryCreate(BaseModel):
@@ -120,17 +107,11 @@ class WorkspaceEntryResponse(BaseModel):
 
 
 class UserCreate(BaseModel):
-    name: str = Field(
-        min_length=1,
-        max_length=100
-    )
+    name: str = Field(min_length=1, max_length=100)
 
     email: EmailStr
 
-    password: str = Field(
-        min_length=8,
-        max_length=128
-    )
+    password: str = Field(min_length=8, max_length=128)
 
     @field_validator("name")
     @classmethod
@@ -146,14 +127,10 @@ class UserCreate(BaseModel):
     @classmethod
     def validate_password(cls, value: str):
         if not any(char.isalpha() for char in value):
-            raise ValueError(
-                "Password must contain at least one letter"
-            )
+            raise ValueError("Password must contain at least one letter")
 
         if not any(char.isdigit() for char in value):
-            raise ValueError(
-                "Password must contain at least one number"
-            )
+            raise ValueError("Password must contain at least one number")
 
         return value
 
@@ -163,13 +140,9 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     has_profile_picture: bool = False
-    tasks: list[TaskResponse] = Field(
-        default_factory=list
-    )
+    tasks: list[TaskResponse] = Field(default_factory=list)
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Token(BaseModel):

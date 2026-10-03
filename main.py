@@ -1,59 +1,54 @@
-from fastapi import Depends, FastAPI, File, HTTPException, Query, Response, UploadFile, status
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
-from database import get_db
-
-from models import User
-
-from fastapi.staticfiles import StaticFiles
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 from fastapi.responses import FileResponse
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
+from auth import create_access_token, decode_access_token
+from database import get_db
+from models import User, WorkspaceEntry
 from schemas import (
     TaskCreate,
-    TaskUpdate,
     TaskPatch,
     TaskResponse,
+    TaskUpdate,
+    Token,
     UserCreate,
     UserResponse,
-    Token,
     WorkspaceEntryCreate,
     WorkspaceEntryResponse,
-    WorkspaceSection
+    WorkspaceSection,
 )
-
 from services import (
+    authenticate_user,
     create_task,
     create_user,
-    get_user_tasks,
-    get_user_task,
-    get_user,
-    update_user_task,
-    patch_user_task,
-    delete_user_task,
-    authenticate_user,
     create_workspace_entry,
+    delete_user_task,
+    delete_user_workspace_entry,
+    get_user,
+    get_user_task,
+    get_user_tasks,
     get_user_workspace_entries,
     get_user_workspace_entry,
+    patch_user_task,
+    update_user_task,
     update_user_workspace_entry,
-    delete_user_workspace_entry
 )
-
-from auth import (
-    create_access_token,
-    decode_access_token
-)
-from models import WorkspaceEntry
-
 
 app = FastAPI()
 
-app.mount(
-    "/static",
-    StaticFiles(directory="frontend"),
-    name="static"
-)
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 
 @app.get("/", include_in_schema=False)
@@ -72,7 +67,7 @@ WORKSPACE_PAGES = {
     "activities",
     "hobbies",
     "development",
-    "gallery"
+    "gallery",
 }
 
 
@@ -82,28 +77,20 @@ def workspace_page(page: str):
         raise HTTPException(status_code=404, detail="Workspace page not found")
     return FileResponse("frontend/index.html")
 
-@app.post(
-    "/users",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
-)
-def create_new_user(
-    user: UserCreate,
-    db: Session = Depends(get_db)
-):
+
+@app.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     try:
         new_user = create_user(db, user)
 
     except IntegrityError:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered"
+            status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
         )
 
     if new_user is None:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered"
+            status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
         )
 
     return new_user
@@ -111,37 +98,25 @@ def create_new_user(
 
 @app.post("/login", response_model=Token)
 def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
-    user = authenticate_user(
-        db,
-        form_data.username,
-        form_data.password
-    )
+    user = authenticate_user(db, form_data.username, form_data.password)
 
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
         )
 
     access_token = create_access_token(user.id)
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="login"
-)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:
 
     user_id = decode_access_token(token)
@@ -150,7 +125,7 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     user = get_user(db, user_id)
@@ -159,25 +134,20 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     return user
 
 
-@app.get(
-    "/users/me",
-    response_model=UserResponse
-)
-def get_current_user_info(
-    current_user: User = Depends(get_current_user)
-):
+@app.get("/users/me", response_model=UserResponse)
+def get_current_user_info(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
         "name": current_user.name,
         "email": current_user.email,
         "tasks": current_user.tasks,
-        "has_profile_picture": current_user.profile_picture_data is not None
+        "has_profile_picture": current_user.profile_picture_data is not None,
     }
 
 
@@ -189,45 +159,41 @@ def serialize_workspace_entry(entry: WorkspaceEntry):
         "content": entry.content,
         "fields": entry.fields or {},
         "has_image": entry.image_data is not None,
-        "created_at": entry.created_at
+        "created_at": entry.created_at,
     }
 
 
 @app.post(
     "/users/me/workspace/entries",
     response_model=WorkspaceEntryResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 def create_my_workspace_entry(
     entry: WorkspaceEntryCreate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     created_entry = create_workspace_entry(db, entry, current_user.id)
     return serialize_workspace_entry(created_entry)
 
 
-@app.get(
-    "/users/me/workspace/entries",
-    response_model=list[WorkspaceEntryResponse]
-)
+@app.get("/users/me/workspace/entries", response_model=list[WorkspaceEntryResponse])
 def list_my_workspace_entries(
     section: WorkspaceSection | None = Query(default=None),
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     entries = get_user_workspace_entries(db, current_user.id, section)
     return [serialize_workspace_entry(entry) for entry in entries]
 
 
 @app.get(
-    "/users/me/workspace/entries/{entry_id}",
-    response_model=WorkspaceEntryResponse
+    "/users/me/workspace/entries/{entry_id}", response_model=WorkspaceEntryResponse
 )
 def get_my_workspace_entry(
     entry_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     entry = get_user_workspace_entry(db, current_user.id, entry_id)
     if entry is None:
@@ -236,14 +202,13 @@ def get_my_workspace_entry(
 
 
 @app.put(
-    "/users/me/workspace/entries/{entry_id}",
-    response_model=WorkspaceEntryResponse
+    "/users/me/workspace/entries/{entry_id}", response_model=WorkspaceEntryResponse
 )
 def update_my_workspace_entry(
     entry_id: int,
     entry: WorkspaceEntryCreate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     existing_entry = get_user_workspace_entry(db, current_user.id, entry_id)
     if existing_entry is None:
@@ -256,7 +221,7 @@ def update_my_workspace_entry(
 def delete_my_workspace_entry(
     entry_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     entry = get_user_workspace_entry(db, current_user.id, entry_id)
     if entry is None:
@@ -270,7 +235,7 @@ def image_signature_matches(content_type: str, image_data: bytes) -> bool:
         "image/jpeg": image_data.startswith(b"\xff\xd8\xff"),
         "image/png": image_data.startswith(b"\x89PNG\r\n\x1a\n"),
         "image/gif": image_data.startswith((b"GIF87a", b"GIF89a")),
-        "image/webp": image_data.startswith(b"RIFF") and image_data[8:12] == b"WEBP"
+        "image/webp": image_data.startswith(b"RIFF") and image_data[8:12] == b"WEBP",
     }
     return signatures.get(content_type, False)
 
@@ -279,13 +244,15 @@ def image_signature_matches(content_type: str, image_data: bytes) -> bool:
 async def update_profile_picture(
     image: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     image_data = await image.read(5 * 1024 * 1024 + 1)
     if len(image_data) > 5 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="Images must be 5 MB or smaller")
     if not image_signature_matches(image.content_type or "", image_data):
-        raise HTTPException(status_code=415, detail="Upload a valid JPEG, PNG, GIF, or WebP image")
+        raise HTTPException(
+            status_code=415, detail="Upload a valid JPEG, PNG, GIF, or WebP image"
+        )
 
     current_user.profile_picture_data = image_data
     current_user.profile_picture_content_type = image.content_type
@@ -294,22 +261,19 @@ async def update_profile_picture(
 
 
 @app.get("/users/me/profile-picture")
-def get_profile_picture(
-    current_user: User = Depends(get_current_user)
-):
+def get_profile_picture(current_user: User = Depends(get_current_user)):
     if current_user.profile_picture_data is None:
         raise HTTPException(status_code=404, detail="Profile picture not found")
     return Response(
         content=current_user.profile_picture_data,
         media_type=current_user.profile_picture_content_type,
-        headers={"X-Content-Type-Options": "nosniff"}
+        headers={"X-Content-Type-Options": "nosniff"},
     )
 
 
 @app.delete("/users/me/profile-picture")
 def delete_profile_picture(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     current_user.profile_picture_data = None
     current_user.profile_picture_content_type = None
@@ -322,19 +286,23 @@ async def upload_workspace_image(
     entry_id: int,
     image: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     entry = get_user_workspace_entry(db, current_user.id, entry_id)
     if entry is None:
         raise HTTPException(status_code=404, detail="Workspace entry not found")
     if entry.section != "gallery":
-        raise HTTPException(status_code=400, detail="Images can only be added to gallery entries")
+        raise HTTPException(
+            status_code=400, detail="Images can only be added to gallery entries"
+        )
 
     image_data = await image.read(5 * 1024 * 1024 + 1)
     if len(image_data) > 5 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="Images must be 5 MB or smaller")
     if not image_signature_matches(image.content_type or "", image_data):
-        raise HTTPException(status_code=415, detail="Upload a valid JPEG, PNG, GIF, or WebP image")
+        raise HTTPException(
+            status_code=415, detail="Upload a valid JPEG, PNG, GIF, or WebP image"
+        )
 
     entry.image_data = image_data
     entry.image_content_type = image.content_type
@@ -346,7 +314,7 @@ async def upload_workspace_image(
 def get_workspace_image(
     entry_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     entry = get_user_workspace_entry(db, current_user.id, entry_id)
     if entry is None or entry.image_data is None:
@@ -354,7 +322,7 @@ def get_workspace_image(
     return Response(
         content=entry.image_data,
         media_type=entry.image_content_type,
-        headers={"X-Content-Type-Options": "nosniff"}
+        headers={"X-Content-Type-Options": "nosniff"},
     )
 
 
@@ -362,7 +330,7 @@ def get_workspace_image(
 def delete_workspace_image(
     entry_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     entry = get_user_workspace_entry(db, current_user.id, entry_id)
     if entry is None:
@@ -374,116 +342,74 @@ def delete_workspace_image(
 
 
 @app.post(
-    "/users/me/tasks",
-    response_model=TaskResponse,
-    status_code=status.HTTP_201_CREATED
+    "/users/me/tasks", response_model=TaskResponse, status_code=status.HTTP_201_CREATED
 )
 def create_my_task(
     task: TaskCreate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    new_task = create_task(
-        db,
-        task,
-        current_user.id
-    )
+    new_task = create_task(db, task, current_user.id)
 
     return new_task
 
 
-@app.get(
-    "/users/me/tasks",
-    response_model=list[TaskResponse]
-)
+@app.get("/users/me/tasks", response_model=list[TaskResponse])
 def get_my_tasks(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    return get_user_tasks(
-        db,
-        current_user.id
-    )
+    return get_user_tasks(db, current_user.id)
 
 
-@app.get(
-    "/users/me/tasks/{task_id}",
-    response_model=TaskResponse
-)
+@app.get("/users/me/tasks/{task_id}", response_model=TaskResponse)
 def get_my_task(
     task_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    task = get_user_task(
-        db,
-        current_user.id,
-        task_id
-    )
+    task = get_user_task(db, current_user.id, task_id)
 
     if task is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
         )
 
     return task
 
 
-@app.put(
-    "/users/me/tasks/{task_id}",
-    response_model=TaskResponse
-)
+@app.put("/users/me/tasks/{task_id}", response_model=TaskResponse)
 def update_my_task(
     task_id: int,
     task: TaskUpdate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    updated_task = update_user_task(
-        db,
-        current_user.id,
-        task_id,
-        task
-    )
+    updated_task = update_user_task(db, current_user.id, task_id, task)
 
     if updated_task is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
         )
 
     return updated_task
 
 
-@app.patch(
-    "/users/me/tasks/{task_id}",
-    response_model=TaskResponse
-)
+@app.patch("/users/me/tasks/{task_id}", response_model=TaskResponse)
 def patch_my_task(
     task_id: int,
     task: TaskPatch,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     try:
-        updated_task = patch_user_task(
-            db,
-            current_user.id,
-            task_id,
-            task
-        )
+        updated_task = patch_user_task(db, current_user.id, task_id, task)
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     if updated_task is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
         )
 
     return updated_task
@@ -493,20 +419,13 @@ def patch_my_task(
 def delete_my_task(
     task_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    deleted = delete_user_task(
-        db,
-        current_user.id,
-        task_id
-    )
+    deleted = delete_user_task(db, current_user.id, task_id)
 
     if not deleted:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
         )
 
-    return {
-        "message": "Task deleted"
-    }
+    return {"message": "Task deleted"}
