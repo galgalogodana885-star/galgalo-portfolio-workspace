@@ -43,7 +43,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
 
       - name: Run Ruff
-        run: ruff check .
+        run: python -m ruff check .
 
       - name: Run tests
-        run: pytest
+        run: python -m pytest
