@@ -11,7 +11,9 @@ from main import app
 from models import Base, Task, User, WorkspaceEntry
 
 # Test database
-TEST_DATABASE_URL = settings.database_url.replace("/taskdb", "/taskdb_test")
+TEST_DATABASE_URL = settings.database_url
+if TEST_DATABASE_URL.endswith("/taskdb"):
+    TEST_DATABASE_URL = TEST_DATABASE_URL.replace("/taskdb", "/taskdb_test")
 
 test_engine = create_engine(TEST_DATABASE_URL)
 
